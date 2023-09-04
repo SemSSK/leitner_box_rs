@@ -6,7 +6,9 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-catppuccin-egui = "3.1.0"
+anyhow = "1.0.75"
 eframe = "0.22.0"
 env_logger = "0.10.0"
-image = "0.24.7"
+serde = { version = "1.0.188", features = ["derive"] }
+thiserror = "1.0.48"
+toml = "0.7.6"
