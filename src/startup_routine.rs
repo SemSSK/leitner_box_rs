@@ -3,7 +3,7 @@ use std::{
     fs,
     path::Path,
 };
-fn get_home_path() -> Result<String, VarError> {
+pub fn get_home_path() -> Result<String, VarError> {
     env::var("HOME")
 }
 pub fn run() -> anyhow::Result<()> {
