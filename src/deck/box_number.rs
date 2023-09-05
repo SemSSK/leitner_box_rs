@@ -2,7 +2,7 @@ use std::time::Duration;
 
 use crate::utils::DurationExt;
 
-#[derive(Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq)]
+#[derive(Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Copy)]
 pub enum BoxNumber {
     Box1,
     Box2,
