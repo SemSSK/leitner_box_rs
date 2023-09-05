@@ -2,6 +2,7 @@ use std::time::{SystemTime, UNIX_EPOCH};
 
 use super::box_number::BoxNumber;
 
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub enum AnswerType {
     Correct,
     Wrong,
