@@ -12,12 +12,12 @@ pub struct Deck(Vec<Card>);
 
 impl Deck {
     pub fn get_deck() -> anyhow::Result<Self> {
-        let deck_toml = fs::read_to_string(format!(
-            "{}/leitner_box_rs/data.toml",
+        let deck_json = fs::read_to_string(format!(
+            "{}/.leitner_box_rs/data.json",
             startup_routine::get_home_path()?
         ))?;
-        let deck: Self = toml::from_str(&deck_toml)?;
-        Ok(deck)
+        let cards: Vec<Card> = serde_json::from_str(&deck_json)?;
+        Ok(Self(cards))
     }
     pub fn get_cards(&mut self) -> &mut Vec<Card> {
         &mut self.0

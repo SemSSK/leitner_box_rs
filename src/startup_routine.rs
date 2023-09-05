@@ -3,6 +3,8 @@ use std::{
     fs,
     path::Path,
 };
+
+use crate::deck::card::Card;
 pub fn get_home_path() -> Result<String, VarError> {
     env::var("HOME")
 }
@@ -22,12 +24,12 @@ fn create_storage_directory() -> anyhow::Result<()> {
     Ok(())
 }
 fn check_if_storage_file_exists(home_path: &str) -> bool {
-    Path::new(&format!("{}/.leitner_box_rs/data.toml", home_path)).is_file()
+    Path::new(&format!("{}/.leitner_box_rs/data.json", home_path)).is_file()
 }
 fn create_storage_file() -> anyhow::Result<()> {
     let home_path = get_home_path()?;
     if !check_if_storage_file_exists(&home_path) {
-        fs::write(&format!("{}/.leitner_box_rs/data.toml", home_path), "")?;
+        fs::write(&format!("{}/.leitner_box_rs/data.json", home_path), r#"[]"#)?;
     }
     Ok(())
 }
