@@ -2,13 +2,11 @@ mod deck;
 mod startup_routine;
 mod utils;
 
-use std::fmt::format;
-
 use deck::{
     card::{AnswerType, Card},
     deck::Deck,
 };
-use eframe::{egui::Layout, *};
+use eframe::*;
 
 fn main() -> Result<()> {
     env_logger::init();
