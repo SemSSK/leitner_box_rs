@@ -8,7 +8,7 @@ pub enum AnswerType {
     Wrong,
 }
 
-#[derive(Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Default)]
 pub struct Card {
     pub id: usize,
     pub question: String,

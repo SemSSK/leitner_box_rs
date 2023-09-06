@@ -19,6 +19,16 @@ impl Deck {
         let cards: Vec<Card> = serde_json::from_str(&deck_json)?;
         Ok(Self(cards))
     }
+    pub fn save(&self) -> anyhow::Result<()> {
+        fs::write(
+            format!(
+                "{}/.leitner_box_rs/data.json",
+                startup_routine::get_home_path()?
+            ),
+            serde_json::to_string(&self.0)?,
+        )?;
+        Ok(())
+    }
     pub fn get_cards(&mut self) -> &mut Vec<Card> {
         &mut self.0
     }

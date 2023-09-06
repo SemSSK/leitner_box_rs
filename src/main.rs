@@ -2,11 +2,13 @@ mod deck;
 mod startup_routine;
 mod utils;
 
+use std::fmt::format;
+
 use deck::{
     card::{AnswerType, Card},
     deck::Deck,
 };
-use eframe::*;
+use eframe::{egui::Layout, *};
 
 fn main() -> Result<()> {
     env_logger::init();
@@ -24,7 +26,8 @@ fn main() -> Result<()> {
         Ok(_) => {
             let deck = Deck::get_deck().expect("Getting deck error");
             let app = LeitnerBox {
-                currentState: State::Neutral,
+                current_state: State::Neutral,
+                card_template: Card::default(),
                 deck,
             };
             let options = eframe::NativeOptions {
@@ -50,16 +53,15 @@ enum State {
     Neutral,
     ShowDeck,
     ShowCardsToAnswer,
-    DeleteCard(usize),
-    AddCard(Card),
-    UpdateCard(Card),
-    SaveDeck(Deck),
-    AnswerCard(AnswerType, Card),
+    AddCard,
+    UpdateCard,
+    AnswerCard(AnswerType),
 }
 
 struct LeitnerBox {
-    currentState: State,
+    current_state: State,
     deck: Deck,
+    card_template: Card,
 }
 
 impl eframe::App for LeitnerBox {
@@ -69,30 +71,75 @@ impl eframe::App for LeitnerBox {
             ui.separator();
             ui.vertical_centered_justified(|ui| {
                 if ui.button("📝 Show Deck").clicked() {
-                    self.currentState = State::ShowDeck;
+                    self.current_state = State::ShowDeck;
                 };
                 if ui.button("？ Start Quiz").clicked() {
-                    self.currentState = State::ShowCardsToAnswer;
+                    self.current_state = State::ShowCardsToAnswer;
+                };
+                if ui.button("⊞ Add Card").clicked() {
+                    self.card_template = Card::default();
+                    self.current_state = State::AddCard;
                 };
             })
         });
-        let mut t = true;
-        egui::Window::new("title")
-            .collapsible(true)
-            .resizable(true)
-            .open(&mut t)
-            .show(ctx, |ui| {
-                ui.label("test");
-            });
-        egui::CentralPanel::default().show(ctx, |ui| match self.currentState {
-            State::Neutral => ui.label("Neutral"),
-            State::ShowDeck => ui.label("Show Deck"),
-            State::ShowCardsToAnswer => ui.label("Show Cards to answer"),
-            State::DeleteCard(_) => ui.label("Delete Card"),
-            State::AddCard(_) => ui.label("Add Card"),
-            State::UpdateCard(_) => ui.label("Update Card"),
-            State::SaveDeck(_) => ui.label("Save Deck"),
-            State::AnswerCard(_, _) => ui.label("Answer Card"),
+        egui::CentralPanel::default().show(ctx, |ui| match self.current_state {
+            State::Neutral => {
+                ui.vertical_centered_justified(|ui| {
+                    ui.heading("Ready to study ?");
+                });
+            }
+            State::ShowDeck => {
+                let mut marked_for_delete = None;
+                egui::Grid::new("show deck grid")
+                    .num_columns(5)
+                    .striped(true)
+                    .show(ui, |ui| {
+                        ui.label("ID");
+                        ui.label("Question");
+                        ui.label("Answer");
+                        ui.label("Current Box");
+                        ui.label("Delete");
+                        ui.end_row();
+                        self.deck.get_cards().iter().for_each(|card| {
+                            ui.label(card.id.to_string());
+                            ui.label(&card.question);
+                            ui.label(&card.answer);
+                            ui.label(card.current_box.show());
+                            if ui.button("delete").clicked() {
+                                marked_for_delete = Some(card.id);
+                            }
+                            ui.end_row();
+                        });
+                    });
+                if let Some(id) = marked_for_delete {
+                    self.deck.delete_card(id);
+                    self.deck.save().expect("saving deck error");
+                };
+            }
+            State::AddCard => {
+                egui::Grid::new("Add card grid")
+                    .num_columns(2)
+                    .show(ui, |ui| {
+                        ui.label("Question");
+                        ui.text_edit_multiline(&mut self.card_template.question);
+                        ui.end_row();
+                        ui.label("Answer");
+                        ui.text_edit_multiline(&mut self.card_template.answer);
+                        ui.end_row();
+                        ui.label("Starting box");
+                        ui.label(self.card_template.current_box.show());
+                        ui.end_row();
+                        if ui.button("Clear").clicked() {
+                            self.card_template = Card::default();
+                        }
+                        if ui.button("Save").clicked() {
+                            self.deck.add_card(self.card_template.clone());
+                            self.current_state = State::ShowDeck;
+                            self.deck.save().expect("saving deck error");
+                        }
+                    });
+            }
+            _ => (),
         });
     }
 }

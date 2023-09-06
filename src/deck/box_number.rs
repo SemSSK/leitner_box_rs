@@ -13,6 +13,12 @@ pub enum BoxNumber {
     Box7(u8),
 }
 
+impl Default for BoxNumber {
+    fn default() -> Self {
+        BoxNumber::Box1
+    }
+}
+
 impl BoxNumber {
     pub fn move_to_next(&self) -> BoxNumber {
         type BN = BoxNumber;
@@ -24,6 +30,18 @@ impl BoxNumber {
             BN::Box5 => BN::Box6,
             BN::Box6 => BN::Box7(0),
             BN::Box7(n) => BN::Box7(n + 1),
+        }
+    }
+
+    pub fn show(&self) -> &'static str {
+        match self {
+            BoxNumber::Box1 => "Box 1",
+            BoxNumber::Box2 => "Box 2",
+            BoxNumber::Box3 => "Box 3",
+            BoxNumber::Box4 => "Box 4",
+            BoxNumber::Box5 => "Box 5",
+            BoxNumber::Box6 => "Box 6",
+            BoxNumber::Box7(_) => "Box 7",
         }
     }
 
