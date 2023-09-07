@@ -3,9 +3,13 @@
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
     utils.url = "github:numtide/flake-utils";
     rust-overlay.url = "github:oxalica/rust-overlay";
+    naersk = {
+      url = "github:nix-community/naersk"; 
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
-  outputs = { self, nixpkgs, utils, rust-overlay }:
+  outputs = { self, nixpkgs, utils, rust-overlay, naersk }:
     utils.lib.eachDefaultSystem (system:
       let
         overlays = [(import rust-overlay)];
@@ -19,8 +23,13 @@
           xorg.libXi
           xorg.libXrandr
         ]);
+        naersk' = pkgs.callPackage naersk {inherit overlays;};
       in
       {
+        packages.default = naersk'.buildPackage {
+          src = ./.;
+          LD_LIBRARY_PATH = libPath;
+        };
         devShell = with pkgs; mkShell {
           buildInputs = [
             pkg-config
