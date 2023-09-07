@@ -6,7 +6,7 @@ use deck::{
     card::{AnswerType, Card},
     deck::Deck,
 };
-use eframe::*;
+use eframe::{egui::Label, epaint::Vec2, *};
 
 fn main() -> Result<()> {
     env_logger::init();
@@ -30,7 +30,7 @@ fn main() -> Result<()> {
                 deck,
             };
             let options = eframe::NativeOptions {
-                min_window_size: Some(egui::Vec2::new(640., 480.)),
+                min_window_size: Some(Vec2::ZERO),
                 ..Default::default()
             };
             eframe::run_native("Leitners box", options, Box::new(|_cc| Box::new(app)))
@@ -64,23 +64,23 @@ struct LeitnerBox {
 }
 
 impl eframe::App for LeitnerBox {
-    fn update(&mut self, ctx: &eframe::egui::Context, _frame: &mut eframe::Frame) {
-        egui::SidePanel::right("Right Menu").show(ctx, |ui| {
-            ui.heading("📭 Leitner's Box Menu");
-            ui.separator();
-            ui.vertical_centered_justified(|ui| {
-                if ui.button("📝 Show Deck").clicked() {
+    fn update(&mut self, ctx: &eframe::egui::Context, frame: &mut eframe::Frame) {
+        catppuccin_egui::set_theme(&ctx, catppuccin_egui::MOCHA);
+        let width = frame.info().window_info.size.x;
+        egui::TopBottomPanel::top("top panel").show(ctx, |ui| {
+            ui.horizontal_centered(|ui| {
+                if ui.button("📝 show deck").clicked() {
                     self.current_state = State::ShowDeck;
-                };
-                if ui.button("？ Start Quiz").clicked() {
+                }
+                if ui.button("？ start quiz").clicked() {
                     self.current_answer = String::new();
                     self.current_state = State::ShowCardsToAnswer;
-                };
-                if ui.button("⊞ Add Card").clicked() {
+                }
+                if ui.button("⊞ add card").clicked() {
                     self.card_template = Card::default();
                     self.current_state = State::AddCard;
-                };
-            })
+                }
+            });
         });
         egui::CentralPanel::default().show(ctx, |ui| match self.current_state {
             State::Neutral => {
@@ -90,32 +90,34 @@ impl eframe::App for LeitnerBox {
             }
             State::ShowDeck => {
                 let mut marked_for_delete = None;
-                egui::Grid::new("show deck grid")
-                    .num_columns(5)
-                    .striped(true)
-                    .show(ui, |ui| {
-                        ui.label("ID");
-                        ui.label("Question");
-                        ui.label("Answer");
-                        ui.label("Current Box");
-                        ui.label("Delete");
-                        ui.label("Update");
-                        ui.end_row();
-                        self.deck.get_cards().iter().for_each(|card| {
-                            ui.label(card.id.to_string());
-                            ui.label(&card.question);
-                            ui.label(&card.answer);
-                            ui.label(card.current_box.show());
-                            if ui.button("delete").clicked() {
-                                marked_for_delete = Some(card.id);
-                            }
-                            if ui.button("update").clicked() {
-                                self.card_template = card.clone();
-                                self.current_state = State::UpdateCard;
-                            }
+                egui::scroll_area::ScrollArea::vertical().show(ui, |ui| {
+                    egui::Grid::new("show deck grid")
+                        .num_columns(6)
+                        .min_col_width(width / 6.)
+                        .show(ui, |ui| {
+                            ui.label("ID");
+                            ui.label("Question");
+                            ui.label("Answer");
+                            ui.label("Current Box");
+                            ui.label("Delete");
+                            ui.label("Update");
                             ui.end_row();
+                            self.deck.get_cards().iter().for_each(|card| {
+                                ui.label(card.id.to_string());
+                                ui.add(Label::new(&card.question).wrap(true));
+                                ui.add(Label::new(&card.answer).wrap(true));
+                                ui.label(card.current_box.show());
+                                if ui.button("delete").clicked() {
+                                    marked_for_delete = Some(card.id);
+                                }
+                                if ui.button("update").clicked() {
+                                    self.card_template = card.clone();
+                                    self.current_state = State::UpdateCard;
+                                }
+                                ui.end_row();
+                            });
                         });
-                    });
+                });
                 if let Some(id) = marked_for_delete {
                     self.deck.delete_card(id);
                     self.deck.save().expect("saving deck error");
@@ -124,12 +126,13 @@ impl eframe::App for LeitnerBox {
             State::AddCard => {
                 egui::Grid::new("Add card grid")
                     .num_columns(2)
+                    .min_col_width(width / 2.)
                     .show(ui, |ui| {
                         ui.label("Question");
-                        ui.text_edit_multiline(&mut self.card_template.question);
+                        ui.text_edit_singleline(&mut self.card_template.question);
                         ui.end_row();
                         ui.label("Answer");
-                        ui.text_edit_multiline(&mut self.card_template.answer);
+                        ui.text_edit_singleline(&mut self.card_template.answer);
                         ui.end_row();
                         ui.label("Starting box");
                         ui.label(self.card_template.current_box.show());
@@ -147,12 +150,13 @@ impl eframe::App for LeitnerBox {
             State::UpdateCard => {
                 egui::Grid::new("Add card grid")
                     .num_columns(2)
+                    .min_col_width(width / 2.)
                     .show(ui, |ui| {
                         ui.label("Question");
-                        ui.text_edit_multiline(&mut self.card_template.question);
+                        ui.text_edit_singleline(&mut self.card_template.question);
                         ui.end_row();
                         ui.label("Answer");
-                        ui.text_edit_multiline(&mut self.card_template.answer);
+                        ui.text_edit_singleline(&mut self.card_template.answer);
                         ui.end_row();
                         ui.label("Starting box");
                         ui.label(self.card_template.current_box.show());
@@ -175,14 +179,15 @@ impl eframe::App for LeitnerBox {
                     Some(card) => {
                         egui::Grid::new("Answer grid")
                             .num_columns(2)
+                            .min_col_width(width / 2.)
                             .show(ui, |ui| {
                                 ui.label("Question");
                                 ui.label(&card.question);
                                 ui.end_row();
                                 ui.label("Your Answer");
-                                ui.text_edit_multiline(&mut self.current_answer);
+                                ui.text_edit_singleline(&mut self.current_answer);
                                 ui.end_row();
-                                if ui.label("Real Answer").hovered() {
+                                if ui.label("Real Answer (hover to see)").hovered() {
                                     ui.label(&card.answer);
                                 };
                                 ui.end_row();
@@ -204,7 +209,6 @@ impl eframe::App for LeitnerBox {
                     self.deck.save().expect("Deck save error");
                 }
             }
-            _ => (),
         });
     }
 }
