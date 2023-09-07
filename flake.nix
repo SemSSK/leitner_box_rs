@@ -26,7 +26,11 @@
         naersk' = pkgs.callPackage naersk {};
       in
       {
-        packages.default = naersk'.buildPackage {
+        defaultPackage = naersk'.buildPackage {
+          src = ./.;
+          LD_LIBRARY_PATH = libPath;
+        };
+        packages.default =naersk'.buildPackage {
           src = ./.;
           LD_LIBRARY_PATH = libPath;
         };
