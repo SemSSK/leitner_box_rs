@@ -23,7 +23,7 @@
           xorg.libXi
           xorg.libXrandr
         ]);
-        naersk' = pkgs.callPackage naersk {inherit overlays;};
+        naersk' = pkgs.callPackage naersk {};
       in
       {
         packages.default = naersk'.buildPackage {
