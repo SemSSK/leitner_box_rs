@@ -35,7 +35,7 @@ impl Card {
 mod test {
     use std::time::{SystemTime, UNIX_EPOCH};
 
-    use crate::deck::box_number::BoxNumber;
+    use crate::control::box_number::BoxNumber;
 
     use super::Card;
 

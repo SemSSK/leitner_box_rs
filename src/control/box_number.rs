@@ -2,8 +2,9 @@ use std::time::Duration;
 
 use crate::utils::DurationExt;
 
-#[derive(Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Copy)]
+#[derive(Default, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Copy)]
 pub enum BoxNumber {
+    #[default]
     Box1,
     Box2,
     Box3,
@@ -11,12 +12,6 @@ pub enum BoxNumber {
     Box5,
     Box6,
     Box7(u8),
-}
-
-impl Default for BoxNumber {
-    fn default() -> Self {
-        BoxNumber::Box1
-    }
 }
 
 impl BoxNumber {
@@ -60,7 +55,7 @@ impl BoxNumber {
 
 #[cfg(test)]
 mod test {
-    use crate::{deck::box_number::BoxNumber, utils::DurationExt};
+    use crate::{control::box_number::BoxNumber, utils::DurationExt};
     use std::time::Duration;
     type BN = BoxNumber;
 

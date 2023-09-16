@@ -1,8 +1,8 @@
-mod deck;
+mod control;
 mod startup_routine;
 mod utils;
 
-use deck::{
+use control::{
     card::{AnswerType, Card},
     deck::Deck,
 };
@@ -65,7 +65,7 @@ struct LeitnerBox {
 
 impl eframe::App for LeitnerBox {
     fn update(&mut self, ctx: &eframe::egui::Context, frame: &mut eframe::Frame) {
-        catppuccin_egui::set_theme(&ctx, catppuccin_egui::MOCHA);
+        catppuccin_egui::set_theme(ctx, catppuccin_egui::MOCHA);
         let width = frame.info().window_info.size.x;
         egui::TopBottomPanel::top("top panel").show(ctx, |ui| {
             ui.horizontal_centered(|ui| {
