@@ -28,7 +28,17 @@
       {
         defaultPackage = naersk'.buildPackage {
           src = ./.;
-          LD_LIBRARY_PATH = libPath;
+          buildInputs = with pkgs;[
+            pkg-config
+            udev
+            libGL
+            libxkbcommon
+            wayland
+            xorg.libX11
+            xorg.libXcursor
+            xorg.libXi
+            xorg.libXrandr
+          ];
         };
         packages.default =naersk'.buildPackage {
           src = ./.;
