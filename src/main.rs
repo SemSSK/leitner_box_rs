@@ -69,16 +69,17 @@ struct LeitnerBox {
 }
 
 impl eframe::App for LeitnerBox {
-    fn update(&mut self, ctx: &eframe::egui::Context, frame: &mut eframe::Frame) {
+    fn update(&mut self, ctx: &eframe::egui::Context, _frame: &mut eframe::Frame) {
         ctx.set_visuals(Visuals {
-            window_rounding: Rounding::none(),
+            window_rounding: Rounding::same(10.),
             ..Default::default()
         });
         catppuccin_egui::set_theme(ctx, catppuccin_egui::MOCHA);
         egui::Window::new("title")
             .title_bar(false)
-            .anchor(Align2::CENTER_TOP, (0., 5.))
+            .anchor(Align2::CENTER_TOP, (0., 10.))
             .default_height(0.)
+            .resizable(false)
             .show(ctx, |ui| {
                 ui.horizontal_centered(|ui| {
                     if ui.button("📝 show deck").clicked() {
@@ -99,6 +100,7 @@ impl eframe::App for LeitnerBox {
             .anchor(Align2::CENTER_CENTER, (0., 0.))
             .default_height(0.)
             .default_width(0.)
+            .resizable(false)
             .show(ctx, |ui| match self.current_state {
                 State::Neutral => {
                     ui.vertical_centered_justified(|ui| {
